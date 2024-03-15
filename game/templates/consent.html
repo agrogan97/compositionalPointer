@@ -1,0 +1,68 @@
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Pointer</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    {% tailwind_css %}
+</head>
+
+<body class="bg-">
+    <div class="flex flex-col grow 100dvw 100dvh min-h-full h-full bg-blue-900 overflow-y-scroll">
+        <div class="mx-96 my-12 p-8 bg-slate-50 100dvh rounded-xl shadow-xl">
+            <h1 class="mb-4 text-3xl font-semibold">Consent Form</h1>
+                <p class="py-4">We are interested in understanding how people make decisions.  In particular, we are interested in how people use knowledge that they have gained from past experience and how they apply it to new situations.</p>
+                <p class="py-4">The experiments are being conducted by Prof Christopher Summerfield of the University of Oxford, England. He can and his team be contacted by e-mail on hiplab@psy.ox.ac.uk.</p>
+                <p class="py-4">Please read the following as it indicates that you are giving informed consent to participate in a psychological experiment :</p>
+                <ol class="list-disc indent-4 list-inside py-2 text-pretty">
+                    <li class="py-2">
+                        I confirm that I have read and understand the information sheet version 1 dated 09/03/2017 for the above study. I have had the opportunity to consider the information, ask questions and have had these answered satisfactorily.
+                    </li>
+                    <li class="py-2">
+                        I understand that my participation is voluntary and that I am free to withdraw at any time, without giving any reason, and without any adverse consequences or academic penalty.
+                    </li>
+                    <li class="py-2">
+                        I understand that research data collected during the study may be looked at by designated individuals from the University of Oxford where it is relevant to my taking part in this study. I give permission for these individuals to access my data.
+                    </li>
+                    <li class="py-2">
+                        I understand that this project has been reviewed by, and received ethics clearance through, the University of Oxford Central University Research Ethics Committee.
+                    </li>
+                    <li class="py-2">
+                        I understand who will have access to personal data provided, how the data will be stored and what will happen to the data at the end of the project.
+                    </li>
+                    <li class="py-2">
+                        I understand how this research will be written up and published.
+                    </li>
+                    <li class="py-2">
+                        I understand how to raise a concern or make a complaint.
+                    </li>
+                    <li class="py-2">
+                        I am over 18 years old.
+                    </li>
+                    <li class="py-2">
+                        I agree to take part in the above study.        
+                    </li>
+                </ol>
+                <p class="py-4">Click on the button below to proceed with the experiment</p>
+                <p class="py-4">By clicking the button below you are indicating that you have read the above and understood it, and are giving your consent to participate in this experiment.</p>
+                
+
+                <a id="redirect" href="#">
+                    <button class="rounded-md p-4 my-8 bg-blue-800 text-xl text-slate-100 min-w-30 min-h-20 text-wrap hover:scale-110 ease-in duration-200">
+                        Agree and Proceed
+                    </button>
+                </a>
+            
+            
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("redirect").setAttribute("href", `/tutorial${location.search}`)
+    </script>
+</body>
+
+
+</html>
