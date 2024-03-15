@@ -14,6 +14,11 @@ var hasClicked = false;
 const revealTimeout = 500; // The time between click and revealing the answer
 var dark=false;
 
+// -- Game window settings
+var isFullScreen = false;
+var kill = false
+var begin = false;
+
 
 function setImgs(){
     const roomIds = generateRoomMappings();
@@ -65,7 +70,7 @@ const nextRound = () => {
     if (roundIndex == curriculum.length) {
         console.log("Game complete")
         hasClicked = true;
-        window.location.replace(`/end${location.search}&ki=true`)
+        window.location.replace(`/debrief${location.search}&ki=false`)
         return
     }
     config = curriculum[roundIndex];
@@ -132,6 +137,9 @@ function handleClick(e){
                 config.id = params.id;
                 config.roundIndex = roundIndex;
                 config.curriculumType = params.ct;
+                config.mapping = mapping;
+                config.params = params;
+                config.functions = config.functions.join()
                 console.log(`Saving`, config)
                 // from here we can call an async save function and save the config obj (also add ID, currType, timestamp etc.)
                 setTimeout(() => {
@@ -147,18 +155,45 @@ function handleClick(e){
 
 function setup(){
     setImgs();
-    var canvas = createCanvas(window.innerWidth, window.innerHeight/2 + document.getElementById("imgContainer").getBoundingClientRect().bottom);
+    var canvas = createCanvas(window.innerWidth, window.innerHeight - document.getElementById("imgContainer").getBoundingClientRect().bottom);
     canvas.parent("gameCanvas");
     rectMode(CORNER);
     imageMode(CORNER);
     pbar = new ProgressBar(width/2-50, 250, config)
-    canvas.mouseClicked((e) => handleClick(e))
-    document.getElementById("roundIndex").innerHTML = `Round ${roundIndex+1}/${curriculum.length}`
+    document.getElementById("roundIndex").innerHTML = `Round ${roundIndex+1}/${curriculum.length}`;
+    // add an initial fullscreen load click listener
+    document.addEventListener("click", () => {
+        if (!begin){
+            isFullScreen = true
+            requestFullScreen(document.documentElement)
+            document.getElementById("fullscreenText").classList.add("hidden");
+            setTimeout(() => {
+                begin = true;
+                // hide fullscreen message and show img container
+                document.getElementById("imgContainer").classList.remove("hidden");
+                canvas.mouseClicked((e) => handleClick(e))
+            }, 250)
+        }
+    })
 }
 
 function draw(){
     clear();
-    dark ? background(0, 13, 33) : background("white")
-    pbar.draw();
 
+    if (begin){
+        if (!isFullScreen) {return}
+        // Check still fullscreen:
+        if (detectFullscreen() == undefined){
+            isFullScreen = false
+            setTimeout(() => {
+                isFullScreen = false;
+                location.search.length == 0 ? window.location.replace(`/debrief?&ki=true`) : window.location.replace(`/debrief${location.search}&ki=true`)
+                // window.location.replace(`/debrief${location.search}&ki=true`)
+            }, 500)
+        } else {
+            // if fullscreen, render content
+            dark ? background(0, 13, 33) : background("white")
+            pbar.draw();
+        }
+    }
 }

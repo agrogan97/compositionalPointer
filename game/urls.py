@@ -9,5 +9,5 @@ urlpatterns = [
     path('consent/', _v.consentView),
     path('tutorial', _v.tutorialView),
     path('pointer/', _v.pointerView),
-    path('end/', _v.debriefView),
+    path('debrief/', _v.debriefView),
 ]

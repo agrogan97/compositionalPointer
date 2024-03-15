@@ -26,17 +26,20 @@
     {% load static %}
 </head>
 
-<body class="flex flex-col">
+<body class="flex flex-col" style="overflow: hidden">
     <div class="flex grow w-full h-1/2 min-h-1/2 mt-10 flex-row">
-        <div class="w-1/2">
-            <div id="imgContainer" class="flex flex-row m-2/5 p-10 justify-center items-center align-center">
+        <div class="flex w-1/2 items-center justify-center align-center">
+            <div id="imgContainer" class="flex flex-row m-2/5 p-10 justify-center items-center align-center hidden">
 
             </div>
+            <p id="fullscreenText" class="font-kalam antialiased text-3xl p-10 w-full">
+                The game must be played in fullscreen. Click anywhere to launch fullscreen mode and begin the game. Exiting fullscreen will automatically exit the game.
+            </p>
         </div>
         <div class="flex flex-col w-1/2 justify-center align-center items-center">
             <!-- <img src="http://127.0.0.1:8000/static/game/imgs/logoMain.png" width="384"> -->
             <img src="{% static 'game/imgs/logoMain.png' %}" width="384">
-            <p id="roundIndex" class="font-kalam antialiased text-4xl mt-10">Round</p>
+            <p id="roundIndex" class="font-kalam antialiased text-4xl mt-10 bottom">Round</p>
             
         </div>
     </div>

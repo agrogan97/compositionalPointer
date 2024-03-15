@@ -9,39 +9,55 @@
     {% tailwind_css %}
 </head>
 
-<body class="bg-blue-900">
-    <div class="flex flex-col grow 100dvw 100dvh min-h-full h-full bg-blue-900 overflow-y-scroll">
+<body class="bg-blue-900 overflow-y-hidden">
+    <div class="flex flex-col grow 100dvw 100dvh min-h-full h-full bg-blue-900 overflow-y-hidden">
         <div class="mx-96 my-12 p-8 bg-slate-50 100dvh h-full rounded-xl shadow-xl">
-            <h1 class="mb-4 text-3xl font-semibold">Experiment Complete</h1>
-            <h2 class="mb-2 text-2xl font-semibold"> Thank-you for participating!</h2>
+            <div id="experimentComplete" class="hidden">
+                <h1 class="mb-4 text-3xl font-semibold">Experiment Complete</h1>
+                <h2 class="mb-2 text-2xl font-semibold"> Thank-you for participating!</h2>
 
-            <p id="participating" class="py-4">Before you go, we'd like to ask some questions about how you experienced the task: </p>
+                <p id="participating" class="py-4">Before you go, we'd like to ask some questions about how you experienced the task: </p>
+                
+                <form id="debriefForm" onsubmit="return false">
+                    <!-- Input 1 -->
+                    <div class="flex flex-row align-center items-center my-2 justify-between">
+                        <label for="inputA" class="m-4">What did you learn about the images used in the game?</label>
+                        <textarea id="inputA" name="inputA" required placeholder="Enter response here"></textarea>
+                    </div>
+                    <!-- Input 2 -->
+                    <div class="flex flex-row align-center items-center my-2 justify-between">
+                        <label for="inputA" class="m-4">Did you notice something change during the game?</label>
+                        <textarea id="inputA" name="inputB" required placeholder="Enter response here"></textarea>
+                    </div>
+                    <!-- Input 3 -->
+                    <div class="flex flex-row align-center items-center my-2 justify-between">
+                        <label for="inputA" class="m-4">Is there anything else you would like to share with us? E.g. did you take notes during the study?</label>
+                        <textarea id="inputA" name="inputC" required placeholder="Enter response here"></textarea>
+                    </div>
+                    <div class="flex justify-end">
+                        <button id="submitBtn" type="submit" value="submit" class="flex my-4 rounded-md bg-blue-800 text-xl p-4 text-slate-100 min-w-30 text-wrap hover:scale-110 ease-in duration-200">Submit</button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="experimentIncomplete" class="hidden">
+                <h1 class="mb-4 text-3xl font-semibold">Experiment Ended</h1>
+                <h2 class="mb-2 text-2xl font-semibold">Detected exited fullscreen mode.</h2>
+                <p class="py-4">Think this was a mistake? Please contact: </p>
+            </div>
             
-            <form id="debriefForm" onsubmit="return false">
-                <!-- Input 1 -->
-                <div class="flex flex-row align-center items-center my-2 justify-between">
-                    <label for="inputA" class="m-4">What did you learn about the images used in the game?</label>
-                    <textarea id="inputA" name="inputA" required placeholder="Enter response here"></textarea>
-                </div>
-                <!-- Input 2 -->
-                <div class="flex flex-row align-center items-center my-2 justify-between">
-                    <label for="inputA" class="m-4">Did you notice something change during the game?</label>
-                    <textarea id="inputA" name="inputB" required placeholder="Enter response here"></textarea>
-                </div>
-                <!-- Input 3 -->
-                <div class="flex flex-row align-center items-center my-2 justify-between">
-                    <label for="inputA" class="m-4">Is there anything else you would like to share with us? E.g. did you take notes during the study?</label>
-                    <textarea id="inputA" name="inputC" required placeholder="Enter response here"></textarea>
-                </div>
-                <div class="flex justify-end">
-                    <button id="submitBtn" type="submit" value="submit" class="flex my-4 rounded-md bg-blue-800 text-xl p-4 text-slate-100 min-w-30 text-wrap hover:scale-110 ease-in duration-200">Submit</button>
-                </div>
-            </form>
             
         </div>
     </div>
 
     <script>
+        let url = new URL(window.location.href)
+        let ki = url.searchParams.get("ki")
+        if (ki == "false"){
+            document.getElementById("experimentComplete").classList.remove("hidden")
+        } else {
+            document.getElementById("experimentIncomplete").classList.remove("hidden")
+        }
         let responses = {};
         document.getElementById("debriefForm").addEventListener("submit", (e) => {
             e.preventDefault()
