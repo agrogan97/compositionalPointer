@@ -91,7 +91,7 @@ const nextRound = () => {
 // -- P5 Functions --
 
 function preload(){
-    assets.imgs.char = loadImage(`/static/game/imgs/character.png`);
+    assets.imgs.char = loadImage(`${window.location.origin}/static/game/imgs/character.png`);
     assets["fonts"]["kalam-bold"] = loadFont("/static/game/fonts/Kalam-Bold.ttf");
     assets["fonts"]["kalam-light"] = loadFont("/static/game/fonts/Kalam-Light.ttf");
     assets["fonts"]["kalam-regular"] = loadFont("/static/game/fonts/Kalam-Regular.ttf");

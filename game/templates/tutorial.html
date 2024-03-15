@@ -26,7 +26,7 @@
         const clickFn = () => {
             console.log(`Clicked on`, imgNum)
             console.log(imgNum)
-            if (imgNum == 6){
+            if (imgNum == 13){
                     setTimeout(() => {
                         window.location.replace(`pointer${location.search}`)
                     })
@@ -50,6 +50,24 @@
                             break;
                         case 6:
                             mainImg.src = "{% static 'game/imgs/tutorial/tutorial6.png' %}"
+                            break;
+                        case 7:
+                            mainImg.src = "{% static 'game/imgs/tutorial/tutorial7.png' %}"
+                            break;
+                        case 8:
+                            mainImg.src = "{% static 'game/imgs/tutorial/tutorial8.png' %}"
+                            break;
+                        case 9:
+                            mainImg.src = "{% static 'game/imgs/tutorial/tutorial9.png' %}"
+                            break;
+                        case 10:
+                            mainImg.src = "{% static 'game/imgs/tutorial/tutorial10.png' %}"
+                            break;
+                        case 11:
+                            mainImg.src = "{% static 'game/imgs/tutorial/tutorial11.png' %}"
+                            break;
+                        case 12:
+                            mainImg.src = "{% static 'game/imgs/tutorial/tutorial12.png' %}"
                             break;
                     }
             }

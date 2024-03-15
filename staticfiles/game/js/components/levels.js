@@ -14,9 +14,13 @@
 */
 
 function getRound(numConcepts, compDepth){
+    /*
+        Sample from the concept set based on some difficulty parameters and compute allowed scores
+    */
+
     // Issue warning if no difficulty parameters are provided
     if (numConcepts == undefined || compDepth == undefined){
-        console.log("[Warning]: Difficulty not defined in getRound()")
+        console.log("[Warning]: Difficulty not defined in getRound() - did you mean to call computeScore() directly and provide your own sequence?")
     }
 
     // Define function mappings
@@ -29,10 +33,84 @@ function getRound(numConcepts, compDepth){
     }
 
     // Get set of concepts to sample from
+    // This is only used if we don't provide a sequence in advance
     let conceptSet = allConcepts.slice(0, numConcepts)
     let sequence = _.sampleSize(conceptSet, compDepth)
 
-    // Function to check if target score is allowed (i.e. in bounds)
+    return computeScore(sequence)
+}
+
+function defineCurriculum(curriculumType){
+    // Function for defining curriculum types
+    if (curriculumType == "linear"){
+        // Linear type proceeds roughly as [1, 1] -> [2, 2] -> [3, 3] -> [4, 4]
+        let levels = {
+            1 : _.range(0, 10).map(i => ([1, 1])),
+            2 : _.range(0, 10).map(i => ([2, 2])),
+            3 : _.range(0, 10).map(i => ([3, 3])),
+            4 : _.range(0, 10).map(i => ([4, 4])),
+        }
+
+        levels = _.concat(levels[1], levels[2], levels[3], levels[4])
+
+        let allRounds = []
+        console.log(levels)
+        levels.forEach(level => {
+            // Levels contains a list of the difficulty levels as [number of concepts, planning depth]
+            allRounds.push(getRound(level[0], level[1]))
+        })
+
+        return allRounds
+    } else if (curriculumType == "BEstudy"){
+        // Composition binding energy study
+        // Blocked study of ~ 4 blocks, each with 32 primitives, then 2x16 primitive pairs for 64 trials total per block
+        // === Params ===
+        const trialsPerBlock = 64;
+        const primitives = ["A", "B", "C", "D"];
+        const pairs1 = _.shuffle([
+            ["A", "A"], ["A", "B"], ["A", "C"], ["A", "D"], 
+            ["B", "A"], ["B", "B"], ["B", "C"], ["B", "D"], 
+            ["C", "A"], ["C", "B"], ["C", "C"], ["C", "D"], 
+            ["D", "A"], ["D", "B"], ["D", "C"], ["D", "D"]]);
+        const pairs2 = _.shuffle(pairs1);
+
+        // Form a single block of concepts
+        let block = {
+            primitives : _.range(0, trialsPerBlock/2).map(i => [_.sample(primitives)]), // 32 primitives
+            compositions1 : _.range(0, trialsPerBlock/4).map((i, ix) => pairs1[ix]), // First pass through shuffled concepts
+            compositions2 : _.range(0, trialsPerBlock/4).map((i, ix) => pairs2[ix]), // Second pass through shuffled concepts
+        }
+
+        // TODO add more blocks to this
+
+        let trials = _.concat(block.primitives, block.compositions1, block.compositions2)
+
+        /*
+            In the binding energy version of the study, we're not generating levels procedurally, so we don't need to pass
+            the data into getRound(), we've already generated the function sequences and can just create configs straight away
+        */
+        let allRounds = []
+        trials.forEach(trialSequence => {
+            allRounds.push(computeScore(trialSequence))
+        })
+
+        return allRounds
+
+    }
+}
+
+function computeScore(sequence){
+    /* From a given sequence of concepts, as ["A"], ["A", "B"] etc. made of a max set ["A", "B", "C", "D"],
+        generate a valid start and end point from the latent functions defined herein
+    */
+    const mapping = {
+        A : function(score){return score + 1},
+        B: function(score){return score * (-1)},
+        C: function(score){return score * 2},
+        D: function(score){return 0}
+    }
+    
+    // Check if target score is allowed (i.e. in bounds)
     const check = (score, sequence) => {
         sequence.forEach(func => {
             score = mapping[func](score)
@@ -60,28 +138,30 @@ function getRound(numConcepts, compDepth){
         start: start, 
         target: target,
         score : start,
-        startTime : Date.now(),
     }
 }
 
-function defineCurriculum(curriculumType){
-    // Function for defining curriculum types
-    if (curriculumType == "linear"){
-        // Linear type proceeds roughly as [1, 1] -> [2, 2] -> [3, 3] -> [4, 4]
-        let levels = {
-            1 : _.range(0, 10).map(i => ([1, 1])),
-            2 : _.range(0, 10).map(i => ([2, 2])),
-            3 : _.range(0, 10).map(i => ([3, 3])),
-            4 : _.range(0, 10).map(i => ([4, 4])),
-        }
 
-        levels = _.concat(levels[1], levels[2], levels[3], levels[4])
 
-        let allRounds = []
-        levels.forEach(level => {
-            allRounds.push(getRound(level[0], level[1]))
-        })
 
-        return allRounds
-    }
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

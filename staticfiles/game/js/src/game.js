@@ -3,23 +3,29 @@ var mapping;
 var params;
 var roundIndex = 0;
 var config;
-var STATIC_IP = `http://127.0.0.1:8000/static/game/imgs/`;
 var curriculum;
 
 // -- p5 globals
 var canvas;
 var pbar;
 var roundData = {};
-var assets = {imgs: {}}
+var assets = {imgs: {}, fonts: {}}
 var hasClicked = false;
 const revealTimeout = 500; // The time between click and revealing the answer
+var dark=false;
+
+// -- Game window settings
+var isFullScreen = false;
+var kill = false
+var begin = false;
 
 
 function setImgs(){
     const roomIds = generateRoomMappings();
     params = getUrlParams(["id", "ct"]);
+    if (params.ct == undefined) {params.ct = 'linear'}
     mapping = {'A' : roomIds[0], 'B' : roomIds[1], 'C' : roomIds[2], 'D' : roomIds[3]};
-
+    
     curriculum = defineCurriculum(params.ct);
     config = curriculum[roundIndex];
 
@@ -54,7 +60,7 @@ const parseNewRound = (config, set=true) => {
         roomList.forEach(room => {
             let elem = document.createElement("img");
             imgContainer.appendChild(elem);
-            elem.src = `${STATIC_IP}room${room}.png`;
+            elem.src = `/static/game/imgs/room${room}.png`
         })
     }
 }
@@ -64,9 +70,11 @@ const nextRound = () => {
     if (roundIndex == curriculum.length) {
         console.log("Game complete")
         hasClicked = true;
+        window.location.replace(`/debrief${location.search}&ki=false`)
         return
     }
     config = curriculum[roundIndex];
+    config.startTime = Date.now()
     // Clear current images
     let imgContainer = document.getElementById("imgContainer");
     let child = imgContainer.lastElementChild;
@@ -83,15 +91,18 @@ const nextRound = () => {
 // -- P5 Functions --
 
 function preload(){
-    assets.imgs.char = loadImage(`${STATIC_IP}character.png`)
-
+    assets.imgs.char = loadImage(`${window.location.origin}/static/game/imgs/character.png`);
+    assets["fonts"]["kalam-bold"] = loadFont("/static/game/fonts/Kalam-Bold.ttf");
+    assets["fonts"]["kalam-light"] = loadFont("/static/game/fonts/Kalam-Light.ttf");
+    assets["fonts"]["kalam-regular"] = loadFont("/static/game/fonts/Kalam-Regular.ttf");
 }
 
 function handleClick(e){
     if (hasClicked){
         return
     }
-    let clickPos = createVector(e.clientX, e.clientY - window.innerHeight/2 + 1.25*pbar.height );
+    // Here we find the bounding rect of the parent div, and offset the click by its height to find the progress bar
+    let clickPos = createVector(e.clientX, e.clientY - canvas.parentElement.getBoundingClientRect().y);
     pbar.blocks.forEach(block => {
         let bPos = block.position;
         if (clickPos.x >= bPos.x && clickPos.x < bPos.x + block.width) {
@@ -99,30 +110,42 @@ function handleClick(e){
                 hasClicked = true;
                 // if clicked on target, turn it green
                 if (block.value == config.target){
-                    setTimeout(() => {block.setColour('green')}, revealTimeout)
-                    // block.setColour('green')
+                    setTimeout(() => {
+                        block.setColour('green');
+                        pbar.setText("win")
+                    }, revealTimeout)
                     block.hidden = false;
                 } else {
                     setTimeout(() => {
                         block.setColour('red');
-                        pbar.blocks.filter(b => b.value==config.target)[0].setColour('green')
+                        pbar.blocks.filter(b => b.value==config.target)[0].setColour('green');
+                        pbar.setText("lose")
                     }, revealTimeout)
-                    // block.setColour('red')
-                    
-                    block.hidden=false
+                    block.hidden=false;
                 }
-                pbar.blocks.filter(b => (!b.hidden && block.value != b.value))[0].hidden = true;
+                try {
+                    pbar.blocks.filter(b => (!b.hidden && block.value != b.value))[0].hidden = true;    
+                } catch (error) {
+                    {}
+                }
                 // Move character to clicked block
-                // pbar.blocks.forEach(block => block.refreshChar(block.value))
-                // if clicked on wrong block, turn it red and turn correct green
                 config.score = block.value;
+                // Show transition arrow
+                pbar.showTransitionArrow(config.start, block.value);
+                // Add data to savefile
                 config.endTime = Date.now();
                 config.id = params.id;
                 config.roundIndex = roundIndex;
                 config.curriculumType = params.ct;
+                config.mapping = mapping;
+                config.params = params;
+                config.functions = config.functions.join()
                 console.log(`Saving`, config)
                 // from here we can call an async save function and save the config obj (also add ID, currType, timestamp etc.)
                 setTimeout(() => {
+                    pbar.transitionArrowOpacity = 0;
+                    pbar.showTransition = false;
+                    pbar.setText("clear")
                     nextRound();
                 }, 2500)
             }
@@ -132,18 +155,45 @@ function handleClick(e){
 
 function setup(){
     setImgs();
-    var canvas = createCanvas(window.innerWidth, window.innerHeight/2);
+    var canvas = createCanvas(window.innerWidth, window.innerHeight - document.getElementById("imgContainer").getBoundingClientRect().bottom);
     canvas.parent("gameCanvas");
     rectMode(CORNER);
     imageMode(CORNER);
-    pbar = new ProgressBar(window.innerWidth/2-50, 250, config)
-    canvas.mouseClicked((e) => handleClick(e))
-    document.getElementById("roundIndex").innerHTML = `Round ${roundIndex+1}/${curriculum.length}`
+    pbar = new ProgressBar(width/2-50, 250, config)
+    document.getElementById("roundIndex").innerHTML = `Round ${roundIndex+1}/${curriculum.length}`;
+    // add an initial fullscreen load click listener
+    document.addEventListener("click", () => {
+        if (!begin){
+            isFullScreen = true
+            requestFullScreen(document.documentElement)
+            document.getElementById("fullscreenText").classList.add("hidden");
+            setTimeout(() => {
+                begin = true;
+                // hide fullscreen message and show img container
+                document.getElementById("imgContainer").classList.remove("hidden");
+                canvas.mouseClicked((e) => handleClick(e))
+            }, 250)
+        }
+    })
 }
 
 function draw(){
-
     clear();
-    pbar.draw();
 
+    if (begin){
+        if (!isFullScreen) {return}
+        // Check still fullscreen:
+        if (detectFullscreen() == undefined){
+            isFullScreen = false
+            setTimeout(() => {
+                isFullScreen = false;
+                location.search.length == 0 ? window.location.replace(`/debrief?&ki=true`) : window.location.replace(`/debrief${location.search}&ki=true`)
+                // window.location.replace(`/debrief${location.search}&ki=true`)
+            }, 500)
+        } else {
+            // if fullscreen, render content
+            dark ? background(0, 13, 33) : background("white")
+            pbar.draw();
+        }
+    }
 }

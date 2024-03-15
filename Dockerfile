@@ -22,6 +22,6 @@ RUN pip install -r requirements.txt
 
 EXPOSE 8000
 
-CMD ["gunicorn", "--bind", ":8000", "--workers", "3", "invertedPointer.wsgi:application"]
+CMD ["gunicorn", "--bind", ":8000", "--workers", "3", "--timeout", "600", "--log-level", "debug", "--worker-class", "gevent", "invertedPointer.wsgi:application"]
 
 # https://www.freecodecamp.org/news/build-and-push-docker-images-to-aws-ecr/
