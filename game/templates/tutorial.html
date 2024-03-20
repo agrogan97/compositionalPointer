@@ -9,32 +9,31 @@
     {% tailwind_css %}
 </head>
 
-<body>
-    <div class="flex m-10 dvh justify-center items-center align-center">
-        <img id="tutorial" src="{% static 'game/imgs/tutorial/tutorial1.png' %}" >
+<body class="overflow-hidden overflow-y-hidden">
+    <div style="display: flex; justify-content: center; align-items: center;">
+        <img id="tutorial" src="{% static 'game/imgs/tutorial/tutorial1.png' %}" style="max-width: 85%;">
     </div>
     
     <script>
         let imgNum = 1;
         let mainImg = document.getElementById("tutorial");
+        mainImg.style.width = window.innerWidth*0.95;
+        mainImg.style.height = window.innerHeight*0.95;
         
         setTimeout(() => {
             
             mainImg.addEventListener('click', clickFn)
-        }, 1000)
+        }, 500)
 
         const clickFn = () => {
-            console.log(`Clicked on`, imgNum)
-            console.log(imgNum)
             if (imgNum == 13){
                     setTimeout(() => {
-                        window.location.replace(`pointer${location.search}`)
-                    })
+                        window.location.replace(`/pointer${location.search}`)
+                    }, 250)
                 } else {
                     imgNum += 1;
                     let imgStr = "tutorial" + imgNum.toString()
                     let newStr = ("{% static 'game/imgs/tutorial" + imgStr + ".png' %}").toString()
-                    console.log(newStr)
                     switch(imgNum){
                         case 2:
                             mainImg.src = "{% static 'game/imgs/tutorial/tutorial2.png' %}"

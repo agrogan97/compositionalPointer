@@ -7,7 +7,8 @@ urlpatterns = [
     path('', _v.landingView),
     path('information/', _v.informationView),
     path('consent/', _v.consentView),
-    path('tutorial', _v.tutorialView),
+    path('tutorial/', _v.tutorialView),
     path('pointer/', _v.pointerView),
     path('debrief/', _v.debriefView),
+    path('pointer/api/', _v.save),
 ]

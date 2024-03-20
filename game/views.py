@@ -1,4 +1,9 @@
 from django.shortcuts import render
+from django.http import HttpResponse, JsonResponse
+from rest_framework.parsers import JSONParser
+from game.models import RoundData
+from game.serializers import RoundDataSerializer
+from django.views.decorators.csrf import csrf_exempt
 
 def landingView(request):
 
@@ -23,3 +28,20 @@ def pointerView(request):
 def debriefView(request):
 
     return render(request, "debrief.html", {})
+
+## --- API --- ##
+
+@csrf_exempt
+def save(request):
+    if request.method == "POST":
+        data = JSONParser().parse(request)
+        serializer = RoundDataSerializer(data=data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return HttpResponse(status=200)
+        else:
+            print("Got bad request", serializer)
+            return HttpResponse(status=400) # bad request
+    return HttpResponse(status=400)
+
+

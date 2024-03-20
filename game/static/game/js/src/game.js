@@ -22,12 +22,14 @@ var begin = false;
 
 function setImgs(){
     const roomIds = generateRoomMappings();
-    params = getUrlParams(["id", "ct"]);
+    // edit the list below to add expected values from the URL - kinda weird? Should change this
+    params = getUrlParams(["playerId", "ct", "source"]);
     if (params.ct == undefined) {params.ct = 'linear'}
     mapping = {'A' : roomIds[0], 'B' : roomIds[1], 'C' : roomIds[2], 'D' : roomIds[3]};
     
     curriculum = defineCurriculum(params.ct);
     config = curriculum[roundIndex];
+    config.starttime = Date.now().toString()
 
     parseNewRound(config, true);
 }
@@ -70,11 +72,12 @@ const nextRound = () => {
     if (roundIndex == curriculum.length) {
         console.log("Game complete")
         hasClicked = true;
-        window.location.replace(`/debrief${location.search}&ki=false`)
+        // window.location.replace(`/debrief${location.search}&ki=false`)
+        handleEndgameRedirect(false)
         return
     }
     config = curriculum[roundIndex];
-    config.startTime = Date.now()
+    config.starttime = Date.now().toString()
     // Clear current images
     let imgContainer = document.getElementById("imgContainer");
     let child = imgContainer.lastElementChild;
@@ -133,15 +136,17 @@ function handleClick(e){
                 // Show transition arrow
                 pbar.showTransitionArrow(config.start, block.value);
                 // Add data to savefile
-                config.endTime = Date.now();
-                config.id = params.id;
+                config.endtime = Date.now().toString()
+                config.playerId = params.playerId;
                 config.roundIndex = roundIndex;
                 config.curriculumType = params.ct;
-                config.mapping = mapping;
-                config.params = params;
+                config.mapping = JSON.stringify(mapping);
+                // config.params = params;
+                config.source = params.source;
                 config.functions = config.functions.join()
                 console.log(`Saving`, config)
                 // from here we can call an async save function and save the config obj (also add ID, currType, timestamp etc.)
+                saveData(config).then((res) => console.log(res.status))
                 setTimeout(() => {
                     pbar.transitionArrowOpacity = 0;
                     pbar.showTransition = false;
@@ -151,6 +156,22 @@ function handleClick(e){
             }
         }
     })
+}
+
+async function saveData(config){
+    config
+    const URL = `api/`
+    const response = await fetch(URL, {
+        method : 'POST',
+        headers: {
+            // 'X-CSRFToken': Cookies.get('csrftoken'),
+            'Accept': 'application/json',
+            'Content-Type': 'application/json' 
+        },
+        body: JSON.stringify(config)
+    })
+
+    return response
 }
 
 function setup(){
@@ -187,13 +208,27 @@ function draw(){
             isFullScreen = false
             setTimeout(() => {
                 isFullScreen = false;
-                location.search.length == 0 ? window.location.replace(`/debrief?&ki=true`) : window.location.replace(`/debrief${location.search}&ki=true`)
-                // window.location.replace(`/debrief${location.search}&ki=true`)
+                handleEndgameRedirect(true)
             }, 500)
         } else {
             // if fullscreen, render content
             dark ? background(0, 13, 33) : background("white")
             pbar.draw();
         }
+    }
+}
+
+function handleEndgameRedirect(earlyExit){
+    /*Handles several endgame redirect cases
+        1) No URL params provided, so includes the playerID and early exit status
+        2) Provides all URL params EXCEPT playerId, so attaches the generated ID to the params, with early exit status
+        3) All URL params provided, so attaches those plus early exit status to redirect link
+    */
+    if (location.search.length == 0){
+        window.location.replace(`/debrief?&ki=true&playerId=${params.playerId}&ki=${earlyExit}`)
+    } else if (location.search.length != 0 && !location.search.includes('playerId')){
+        window.location.replace(`/debrief?${location.search}&playerId=${params.playerId}&ki=${earlyExit}`)
+    } else {
+        window.location.replace(`/debrief?${location.search}&ki=${earlyExit}`)
     }
 }

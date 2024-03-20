@@ -4,11 +4,12 @@ function getUrlParams(params = []){
     params.forEach(p => {
         searchParams[p] = url.searchParams.get(p) || undefined
     })
+    console.log(params)
 
     // Generate a random ID if no ID provided
-    if (searchParams.id == undefined){
+    if (searchParams.playerId == undefined){
         const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        searchParams.id =  _.range(1, 16).map(i => _.sample(characters)).join('')
+        searchParams.playerId =  _.range(1, 16).map(i => _.sample(characters)).join('')
     }
 
     // If no source provided, set to string unknown
