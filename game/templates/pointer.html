@@ -37,7 +37,6 @@
             </p>
         </div>
         <div class="flex flex-col w-1/2 justify-center align-center items-center">
-            <!-- <img src="http://127.0.0.1:8000/static/game/imgs/logoMain.png" width="384"> -->
             <img src="{% static 'game/imgs/logoMain.png' %}" width="384">
             <p id="roundIndex" class="font-kalam antialiased text-4xl mt-10 bottom">Round</p>
             
@@ -49,8 +48,30 @@
         </div>
     </div>
     
-    <!-- <script src="http://127.0.0.1:8000/static/game/js/src/game.js"></script> -->
+    <script>
+        var assets = {imgs: {
+            char : "{% static 'game/imgs/character.png' %}",
+            room1 : "{% static 'game/imgs/room1.png' %}",
+            room2 : "{% static 'game/imgs/room2.png' %}",
+            room3 : "{% static 'game/imgs/room3.png' %}",
+            room4 : "{% static 'game/imgs/room4.png' %}",
+            room5 : "{% static 'game/imgs/room5.png' %}",
+            room6 : "{% static 'game/imgs/room6.png' %}",
+            room7 : "{% static 'game/imgs/room7.png' %}",
+            room8 : "{% static 'game/imgs/room8.png' %}",
+            room9 : "{% static 'game/imgs/room9.png' %}",
+            room10 : "{% static 'game/imgs/room10.png' %}",
+            room11 : "{% static 'game/imgs/room11.png' %}",
+            room12 : "{% static 'game/imgs/room12.png' %}",
+        }, fonts : {
+            "kalam-bold" : "{% static 'game/fonts/Kalam-Bold.ttf' %}",
+            "kalam-light" : "{% static 'game/fonts/Kalam-Light.ttf' %}",
+            "kalam-regular" : "{% static 'game/fonts/Kalam-Regular.ttf' %}",
+        }}
+
+    </script>
     <script src="{% static 'game/js/src/game.js' %}"></script>
+
     
 </body>
 

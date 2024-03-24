@@ -9,7 +9,7 @@ var curriculum;
 var canvas;
 var pbar;
 var roundData = {};
-var assets = {imgs: {}, fonts: {}}
+// var assets = {imgs: {}, fonts: {}}
 var hasClicked = false;
 const revealTimeout = 500; // The time between click and revealing the answer
 var dark=false;
@@ -18,16 +18,19 @@ var dark=false;
 var isFullScreen = false;
 var kill = false
 var begin = false;
+var doSave = true;
+var blockLoop = false;
 
 
 function setImgs(){
     const roomIds = generateRoomMappings();
     // edit the list below to add expected values from the URL - kinda weird? Should change this
-    params = getUrlParams(["playerId", "ct", "source"]);
-    if (params.ct == undefined) {params.ct = 'linear'}
+    params = getUrlParams(["playerId", "ct", "source", "numBlocks", "doSave"]);
+    if (params.ct == undefined) {params.ct = 'BEstudy'}
+    if (params.numBlocks == undefined){params.numBlocks=2}
     mapping = {'A' : roomIds[0], 'B' : roomIds[1], 'C' : roomIds[2], 'D' : roomIds[3]};
     
-    curriculum = defineCurriculum(params.ct);
+    curriculum = defineCurriculum(params.ct, params.numBlocks);
     config = curriculum[roundIndex];
     config.starttime = Date.now().toString()
 
@@ -62,7 +65,8 @@ const parseNewRound = (config, set=true) => {
         roomList.forEach(room => {
             let elem = document.createElement("img");
             imgContainer.appendChild(elem);
-            elem.src = `/static/game/imgs/room${room}.png`
+            elem.src = assets.imgs["room" + room.toString()]
+            // elem.src = `/static/game/imgs/room${room}.png`
         })
     }
 }
@@ -94,10 +98,10 @@ const nextRound = () => {
 // -- P5 Functions --
 
 function preload(){
-    assets.imgs.char = loadImage(`${window.location.origin}/static/game/imgs/character.png`);
-    assets["fonts"]["kalam-bold"] = loadFont("/static/game/fonts/Kalam-Bold.ttf");
-    assets["fonts"]["kalam-light"] = loadFont("/static/game/fonts/Kalam-Light.ttf");
-    assets["fonts"]["kalam-regular"] = loadFont("/static/game/fonts/Kalam-Regular.ttf");
+    assets.imgs.char = loadImage(assets.imgs.char);
+    assets["fonts"]["kalam-bold"] = loadFont(assets.fonts["kalam-bold"]);
+    assets["fonts"]["kalam-light"] = loadFont(assets.fonts["kalam-light"]);
+    assets["fonts"]["kalam-regular"] = loadFont(assets.fonts["kalam-regular"]);
 }
 
 function handleClick(e){
@@ -146,7 +150,7 @@ function handleClick(e){
                 config.functions = config.functions.join()
                 console.log(`Saving`, config)
                 // from here we can call an async save function and save the config obj (also add ID, currType, timestamp etc.)
-                saveData(config).then((res) => console.log(res.status))
+                if (!params.doSave){saveData(config).then((res) => console.log(res.status))}
                 setTimeout(() => {
                     pbar.transitionArrowOpacity = 0;
                     pbar.showTransition = false;
@@ -159,8 +163,7 @@ function handleClick(e){
 }
 
 async function saveData(config){
-    config
-    const URL = `api/`
+    const URL = `api/save/`
     const response = await fetch(URL, {
         method : 'POST',
         headers: {
@@ -176,7 +179,7 @@ async function saveData(config){
 
 function setup(){
     setImgs();
-    var canvas = createCanvas(window.innerWidth, window.innerHeight - document.getElementById("imgContainer").getBoundingClientRect().bottom);
+    var canvas = createCanvas(window.screen.width, window.screen.height - document.getElementById("imgContainer").getBoundingClientRect().bottom);
     canvas.parent("gameCanvas");
     rectMode(CORNER);
     imageMode(CORNER);
@@ -201,20 +204,25 @@ function setup(){
 function draw(){
     clear();
 
-    if (begin){
-        if (!isFullScreen) {return}
-        // Check still fullscreen:
-        if (detectFullscreen() == undefined){
-            isFullScreen = false
-            setTimeout(() => {
-                isFullScreen = false;
-                handleEndgameRedirect(true)
-            }, 500)
-        } else {
-            // if fullscreen, render content
-            dark ? background(0, 13, 33) : background("white")
-            pbar.draw();
+    if (blockLoop) {return}
+
+    // Check if game has started:
+    if (begin) {
+
+        if (isFullScreen){
+            if (detectFullscreen() == undefined){
+                isFullScreen = false
+                setTimeout(() => {
+                    handleEndgameRedirect(true)
+                    console.log("exiting")
+                    isFullScreen = false
+                }, 1000)
+            }
         }
+
+        // if fullscreen, render content
+        dark ? background(0, 13, 33) : background("white")
+        pbar.draw();
     }
 }
 
@@ -224,11 +232,13 @@ function handleEndgameRedirect(earlyExit){
         2) Provides all URL params EXCEPT playerId, so attaches the generated ID to the params, with early exit status
         3) All URL params provided, so attaches those plus early exit status to redirect link
     */
+    blockLoop = true;
+
     if (location.search.length == 0){
         window.location.replace(`/debrief?&ki=true&playerId=${params.playerId}&ki=${earlyExit}`)
     } else if (location.search.length != 0 && !location.search.includes('playerId')){
-        window.location.replace(`/debrief?${location.search}&playerId=${params.playerId}&ki=${earlyExit}`)
+        window.location.replace(`/debrief${location.search}&playerId=${params.playerId}&ki=${earlyExit}`)
     } else {
-        window.location.replace(`/debrief?${location.search}&ki=${earlyExit}`)
+        window.location.replace(`/debrief${location.search}&ki=${earlyExit}`)
     }
 }

@@ -40,7 +40,8 @@ function getRound(numConcepts, compDepth){
     return computeScore(sequence)
 }
 
-function defineCurriculum(curriculumType){
+function defineCurriculum(curriculumType, numBlocks=2){
+    console.log(numBlocks)
     // Function for defining curriculum types
     if (curriculumType == "linear"){
         // Linear type proceeds roughly as [1, 1] -> [2, 2] -> [3, 3] -> [4, 4]
@@ -54,7 +55,6 @@ function defineCurriculum(curriculumType){
         levels = _.concat(levels[1], levels[2], levels[3], levels[4])
 
         let allRounds = []
-        console.log(levels)
         levels.forEach(level => {
             // Levels contains a list of the difficulty levels as [number of concepts, planning depth]
             allRounds.push(getRound(level[0], level[1]))
@@ -63,28 +63,35 @@ function defineCurriculum(curriculumType){
         return allRounds
     } else if (curriculumType == "BEstudy"){
         // Composition binding energy study
-        // Blocked study of ~ 4 blocks, each with 32 primitives, then 2x16 primitive pairs for 64 trials total per block
-        // === Params ===
-        const trialsPerBlock = 64;
-        const primitives = ["A", "B", "C", "D"];
-        const pairs1 = _.shuffle([
-            ["A", "A"], ["A", "B"], ["A", "C"], ["A", "D"], 
-            ["B", "A"], ["B", "B"], ["B", "C"], ["B", "D"], 
-            ["C", "A"], ["C", "B"], ["C", "C"], ["C", "D"], 
-            ["D", "A"], ["D", "B"], ["D", "C"], ["D", "D"]]);
-        const pairs2 = _.shuffle(pairs1);
+        // Blocked study of 4 blocks, each with 32 primitives, then 2x16 primitive pairs for 64 trials total per block
 
-        // Form a single block of concepts
-        let block = {
-            primitives : _.range(0, trialsPerBlock/2).map(i => [_.sample(primitives)]), // 32 primitives
-            compositions1 : _.range(0, trialsPerBlock/4).map((i, ix) => pairs1[ix]), // First pass through shuffled concepts
-            compositions2 : _.range(0, trialsPerBlock/4).map((i, ix) => pairs2[ix]), // Second pass through shuffled concepts
+        const newBlock = () => {
+            // --- Block params --- //
+            const trialsPerBlock = 64;
+            const primitives = ["A", "B", "C", "D"];
+            const pairs = _.shuffle([
+                ["A", "A"], ["A", "B"], ["A", "C"], ["A", "D"], 
+                ["B", "A"], ["B", "B"], ["B", "C"], ["B", "D"], 
+                ["C", "A"], ["C", "B"], ["C", "C"], ["C", "D"], 
+                ["D", "A"], ["D", "B"], ["D", "C"], ["D", "D"]]);
+
+            let block = {
+                primitives: _.range(0, trialsPerBlock/2).map(i => [_.sample(primitives)]), // 32 primitives
+                compositions1 : _.shuffle(pairs),
+                compositions2 : _.shuffle(pairs)
+            }
+
+            return _.concat(block.primitives, block.compositions1, block.compositions2)
         }
 
-        // TODO add more blocks to this
-
-        let trials = _.concat(block.primitives, block.compositions1, block.compositions2)
-
+        // call newBlock 4 times for a curriculum of... 4 
+        let trials;
+        if (numBlocks == 4){
+            trials = [...newBlock(), ...newBlock(), ...newBlock(), ...newBlock()]
+        } else {
+            trials = [...newBlock(), ...newBlock()]
+        }
+        
         /*
             In the binding energy version of the study, we're not generating levels procedurally, so we don't need to pass
             the data into getRound(), we've already generated the function sequences and can just create configs straight away
@@ -101,7 +108,7 @@ function defineCurriculum(curriculumType){
 
 function computeScore(sequence){
     /* From a given sequence of concepts, as ["A"], ["A", "B"] etc. made of a max set ["A", "B", "C", "D"],
-        generate a valid start and end point from the latent functions defined herein
+        generate a valid start and end point from the latent functions defined in local var `mapping`
     */
     const mapping = {
         A : function(score){return score + 1},

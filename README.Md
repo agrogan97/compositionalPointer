@@ -7,3 +7,5 @@ Before building into docker, make all tailwind into CSS with: `python manage.py 
 Dockerise with: `docker build --no-cache -t compositionalpointer:latest .`.
 
 Run locally with `docker run -p 8000:8000 compositionalpointer:latest`.
+
+From psql: `\copy (SELECT * FROM game_rounddata) to 'C:<...>\data.csv' with csv`

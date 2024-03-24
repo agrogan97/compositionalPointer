@@ -17,6 +17,9 @@ function getUrlParams(params = []){
         searchParams.source = "unknown"
     }
 
+    if (searchParams.doSave == undefined) {searchParams.doSave = true}
+    else if (searchParams.doSave == "false" || searchParams.doSave == false) {searchParams.doSave = false};
+
     return searchParams;
 
 }

@@ -6,6 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="{% static 'game/js/components/debrief.js' %}"></script>
     {% tailwind_css %}
 </head>
 
@@ -21,18 +22,23 @@
                 <form id="debriefForm" onsubmit="return false">
                     <!-- Input 1 -->
                     <div class="flex flex-row align-center items-center my-2 justify-between">
-                        <label for="inputA" class="m-4">What did you learn about the images used in the game?</label>
-                        <textarea id="inputA" name="inputA" required placeholder="Enter response here"></textarea>
+                        <label for="inputA" class="m-4">What did each magic stone do? Try and write the rules for each.</label>
+                        <textarea id="inputA" name="inputA" required placeholder="Enter response here" maxlength="256"></textarea>
                     </div>
                     <!-- Input 2 -->
                     <div class="flex flex-row align-center items-center my-2 justify-between">
-                        <label for="inputA" class="m-4">Did you notice something change during the game?</label>
-                        <textarea id="inputA" name="inputB" required placeholder="Enter response here"></textarea>
+                        <label for="inputB" class="m-4">Did you find any of the magic stones more difficult to use than others?</label>
+                        <textarea id="inputB" name="inputB" required placeholder="Enter response here" maxlength="256"></textarea>
                     </div>
                     <!-- Input 3 -->
                     <div class="flex flex-row align-center items-center my-2 justify-between">
-                        <label for="inputA" class="m-4">Is there anything else you would like to share with us? E.g. did you take notes during the study?</label>
-                        <textarea id="inputA" name="inputC" required placeholder="Enter response here"></textarea>
+                        <label for="inputC" class="m-4">Did you find the game enjoyable to play? Would you like to suggest any improvements?</label>
+                        <textarea id="inputC" name="inputC" required placeholder="Enter response here" maxlength="256"></textarea>
+                    </div>
+                    <!-- Input 4 -->
+                    <div class="flex flex-row align-center items-center my-2 justify-between">
+                        <label for="inputD" class="m-4">Is there anything else you would like to share with us? E.g. did you take notes during the game?</label>
+                        <textarea id="inputD" name="inputD" required placeholder="Enter response here" maxlength="256"></textarea>
                     </div>
                     <div class="flex justify-end">
                         <button id="submitBtn" type="submit" value="submit" class="flex my-4 rounded-md bg-blue-800 text-xl p-4 text-slate-100 min-w-30 text-wrap hover:scale-110 ease-in duration-200">Submit</button>
@@ -43,7 +49,7 @@
             <div id="experimentIncomplete" class="hidden">
                 <h1 class="mb-4 text-3xl font-semibold">Experiment Ended</h1>
                 <h2 class="mb-2 text-2xl font-semibold">Detected exited fullscreen mode.</h2>
-                <p class="py-4">Think this was a mistake? Please contact: </p>
+                <p class="py-4">Think this was a mistake? Please contact oxgames@psy.ox.ac.uk</p>
             </div>
             
             
@@ -53,6 +59,8 @@
     <script>
         let url = new URL(window.location.href)
         let ki = url.searchParams.get("ki")
+        let playerId = url.searchParams.get("playerId")
+        let Qs = "What did each magic stone do? Try and write the rules for each.; Did you find any of the magic stones more difficult to use than others?; Did you find the game enjoyable to play? Would you like to suggest any improvements?; Is there anything else you would like to share with us? E.g. did you take notes during the study?"
         if (ki == "false"){
             document.getElementById("experimentComplete").classList.remove("hidden")
         } else {
@@ -65,15 +73,19 @@
             responses.inputA = formData.get("inputA")
             responses.inputB = formData.get("inputB")
             responses.inputC = formData.get("inputC")
+            responses.inputD = formData.get("inputD")
             let submitBtn = document.getElementById("submitBtn")
             submitBtn.setAttribute("disabled", "")
             document.getElementById("debriefForm").reset() 
-            console.log(responses)
+            console.log({responses:JSON.stringify(responses), playerId:playerId, questions: Qs})
             // and hide form
+            let data = {responses: JSON.stringify(responses), playerId:playerId, questions: Qs}
+            submitData(data).then((res) => console.log(res.status, res.statusText))
             document.getElementById("debriefForm").style.visibility = "hidden"
             document.getElementById("participating").innerHTML = "Responses submitted. <br> <br>You may now close the window."
-
         })
+
+        
     </script>
 </body>
 

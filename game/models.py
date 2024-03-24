@@ -32,3 +32,13 @@ class RoundData(models.Model):
     endtime = models.CharField(max_length=64)
     timeCreated = models.DateTimeField(auto_now_add=True)
     functions = models.CharField(max_length=32)
+
+class DebriefForm(models.Model):
+    class Meta:
+        verbose_name = "Debrief Form"
+        verbose_name_plural = "Debrief Responses"
+
+    playerId = models.CharField(max_length=64)
+    timeCreated = models.DateTimeField(auto_now_add=True)
+    responses = models.CharField(max_length=5120)
+    questions = models.CharField(max_length=5120)

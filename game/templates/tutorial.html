@@ -32,8 +32,6 @@
                     }, 250)
                 } else {
                     imgNum += 1;
-                    let imgStr = "tutorial" + imgNum.toString()
-                    let newStr = ("{% static 'game/imgs/tutorial" + imgStr + ".png' %}").toString()
                     switch(imgNum){
                         case 2:
                             mainImg.src = "{% static 'game/imgs/tutorial/tutorial2.png' %}"

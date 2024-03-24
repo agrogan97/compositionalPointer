@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+import mimetypes
 
 load_dotenv()
 
@@ -29,6 +30,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # DEBUG = False
 # DEBUG = bool(os.getenv("DEBUG", default=0))
 DEBUG = (os.getenv("MODE") == "DEVELOPMENT")
+DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 # ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS").split(" ")
@@ -45,13 +47,13 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'tailwind',
     'theme',
-    'django_browser_reload',
     'rest_framework',
     'game',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -59,8 +61,13 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django_browser_reload.middleware.BrowserReloadMiddleware',
 ]
+
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 CORS_ALLOWED_ORIGINS = [
     'http://127.0.0.1:8000',
@@ -94,7 +101,7 @@ WSGI_APPLICATION = 'invertedPointer.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-if 'RDS_DB_NAME' in os.environ:
+if 'RDS_DB_NAME' in os.environ or DEBUG == True:
     DATABASES = {
         'default' : {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -111,7 +118,7 @@ else:
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': BASE_DIR / 'db.sqlite3',
         }
-    }
+}
 
 
 # Password validation
@@ -166,6 +173,8 @@ INTERNAL_IPS = [
 ]
 
 NPM_BIN_PATH = r"C:\Program Files\nodejs\npm.cmd"
+
+mimetypes.add_type("text/css", ".css", True)
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field

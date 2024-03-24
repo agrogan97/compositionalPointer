@@ -10,5 +10,6 @@ urlpatterns = [
     path('tutorial/', _v.tutorialView),
     path('pointer/', _v.pointerView),
     path('debrief/', _v.debriefView),
-    path('pointer/api/', _v.save),
+    path('pointer/api/save/', _v.save),
+    path('pointer/api/submitDebrief/', _v.submitDebrief),
 ]
