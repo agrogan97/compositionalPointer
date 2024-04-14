@@ -32,6 +32,7 @@ class RoundData(models.Model):
     endtime = models.CharField(max_length=64)
     timeCreated = models.DateTimeField(auto_now_add=True)
     functions = models.CharField(max_length=32)
+    prolificParams = models.CharField(max_length=1024, blank=True, default="")
 
 class DebriefForm(models.Model):
     class Meta:
@@ -42,3 +43,4 @@ class DebriefForm(models.Model):
     timeCreated = models.DateTimeField(auto_now_add=True)
     responses = models.CharField(max_length=5120)
     questions = models.CharField(max_length=5120)
+    prolificParams = models.CharField(max_length=1024, blank=True, default="")

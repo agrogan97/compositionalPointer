@@ -6,8 +6,9 @@ class ProgressBar{
         this.start = createVector(x, y);
         this.blocks = [];
         // Box dims
-        this.width = 80;
-        this.height = 125;
+        this.levels = [-10, -9, -8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        this.width = Math.floor((window.screen.width*0.8)/this.levels.length);
+        this.height = this.width*1.5;
         // Placeholders
         this.config = config;
         this.score = config.score
@@ -21,7 +22,7 @@ class ProgressBar{
         }
         this.transitionArrowOpacity = 1;
 
-        this.levels = [-10, -9, -8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        
         this.levels.forEach((val, ix) => {
             this.blocks.push(
                 new Block(
@@ -101,16 +102,11 @@ class ProgressBar{
         textSize(32)
         textFont(assets["fonts"]["kalam-regular"]);
         // text(this.text, this.width + Math.floor((this.levels.length-4)/2)*this.width, this.height*4)
-        text(this.text, window.innerWidth/2 - 200, this.height*4)
+        text(this.text, window.screen.width/2 - (this.height*2), this.height*4)
         pop();
 
         if (this.showTransition) {
             this.setTransitionArrow();
-            // this.transitionArrowOpacity -= 0.005;
-            // if (this.transitionArrowOpacity <= 0){
-            //     this.transitionArrowOpacity = 0
-            //     this.showTransition = false;
-            // }
         }
     }
 }

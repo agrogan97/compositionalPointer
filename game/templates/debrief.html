@@ -10,8 +10,8 @@
     {% tailwind_css %}
 </head>
 
-<body class="bg-blue-900 overflow-y-hidden">
-    <div class="flex flex-col grow 100dvw 100dvh min-h-full h-full bg-blue-900 overflow-y-hidden">
+<body class="bg-blue-900 overflow-y-scroll">
+    <div class="flex flex-col grow 100dvw 100dvh min-h-full h-full bg-blue-900">
         <div class="mx-96 my-12 p-8 bg-slate-50 100dvh h-full rounded-xl shadow-xl">
             <div id="experimentComplete" class="hidden">
                 <h1 class="mb-4 text-3xl font-semibold">Experiment Complete</h1>
@@ -22,23 +22,38 @@
                 <form id="debriefForm" onsubmit="return false">
                     <!-- Input 1 -->
                     <div class="flex flex-row align-center items-center my-2 justify-between">
-                        <label for="inputA" class="m-4">What did each magic stone do? Try and write the rules for each.</label>
+                        <label for="inputA" class="m-4">What did this magic stone do? Try and write the rules: <img id="stoneA" src="" width=73></label>
                         <textarea id="inputA" name="inputA" required placeholder="Enter response here" maxlength="256"></textarea>
+                    </div>
+
+                    <div class="flex flex-row align-center items-center my-2 justify-between">
+                        <label for="inputB" class="m-4">What did this magic stone do? Try and write the rules: <img id="stoneB" src="" width=73></label>
+                        <textarea id="inputB" name="inputB" required placeholder="Enter response here" maxlength="256"></textarea>
+                    </div>
+
+                    <div class="flex flex-row align-center items-center my-2 justify-between">
+                        <label for="inputC" class="m-4">What did this magic stone do? Try and write the rules: <img id="stoneC" src="" width=73></label>
+                        <textarea id="inputC" name="inputC" required placeholder="Enter response here" maxlength="256"></textarea>
+                    </div>
+
+                    <div class="flex flex-row align-center items-center my-2 justify-between">
+                        <label for="inputD" class="m-4">What did this magic stone do? Try and write the rules: <img id="stoneD" src="" width=73></label>
+                        <textarea id="inputD" name="inputD" required placeholder="Enter response here" maxlength="256"></textarea>
                     </div>
                     <!-- Input 2 -->
                     <div class="flex flex-row align-center items-center my-2 justify-between">
-                        <label for="inputB" class="m-4">Did you find any of the magic stones more difficult to use than others?</label>
-                        <textarea id="inputB" name="inputB" required placeholder="Enter response here" maxlength="256"></textarea>
+                        <label for="inputE" class="m-4">Did you find any of the magic stones more difficult to use than others?</label>
+                        <textarea id="inputE" name="inputE" required placeholder="Enter response here" maxlength="256"></textarea>
                     </div>
                     <!-- Input 3 -->
                     <div class="flex flex-row align-center items-center my-2 justify-between">
-                        <label for="inputC" class="m-4">Did you find the game enjoyable to play? Would you like to suggest any improvements?</label>
-                        <textarea id="inputC" name="inputC" required placeholder="Enter response here" maxlength="256"></textarea>
+                        <label for="inputF" class="m-4">Did you find the game enjoyable to play? Would you like to suggest any improvements?</label>
+                        <textarea id="inputF" name="inputF" required placeholder="Enter response here" maxlength="256"></textarea>
                     </div>
                     <!-- Input 4 -->
                     <div class="flex flex-row align-center items-center my-2 justify-between">
-                        <label for="inputD" class="m-4">Is there anything else you would like to share with us? E.g. did you take notes during the game?</label>
-                        <textarea id="inputD" name="inputD" required placeholder="Enter response here" maxlength="256"></textarea>
+                        <label for="inputG" class="m-4">Is there anything else you would like to share with us? E.g. did you take notes during the game?</label>
+                        <textarea id="inputG" name="inputG" required placeholder="Enter response here" maxlength="256"></textarea>
                     </div>
                     <div class="flex justify-end">
                         <button id="submitBtn" type="submit" value="submit" class="flex my-4 rounded-md bg-blue-800 text-xl p-4 text-slate-100 min-w-30 text-wrap hover:scale-110 ease-in duration-200">Submit</button>
@@ -57,10 +72,40 @@
     </div>
 
     <script>
+        let assets = {
+            1: "{% static 'game/imgs/room1.png' %}",
+            2: "{% static 'game/imgs/room2.png' %}",
+            3: "{% static 'game/imgs/room3.png' %}",
+            4: "{% static 'game/imgs/room4.png' %}",
+            5: "{% static 'game/imgs/room5.png' %}",
+            6: "{% static 'game/imgs/room6.png' %}",
+            7: "{% static 'game/imgs/room7.png' %}",
+            8: "{% static 'game/imgs/room8.png' %}",
+            9: "{% static 'game/imgs/room9.png' %}",
+            10: "{% static 'game/imgs/room10.png' %}",
+            11: "{% static 'game/imgs/room11.png' %}",
+            12: "{% static 'game/imgs/room12.png' %}",
+        }
         let url = new URL(window.location.href)
-        let ki = url.searchParams.get("ki")
-        let playerId = url.searchParams.get("playerId")
-        let Qs = "What did each magic stone do? Try and write the rules for each.; Did you find any of the magic stones more difficult to use than others?; Did you find the game enjoyable to play? Would you like to suggest any improvements?; Is there anything else you would like to share with us? E.g. did you take notes during the study?"
+        let ki = url.searchParams.get("ki") || undefined;
+        let playerId = url.searchParams.get("playerId") || undefined;
+        let session_id = url.searchParams.get("SESSION_ID") || undefined;
+        let study_id = url.searchParams.get("STUDY_ID") || undefined;
+        let prolific_id = url.searchParams.get("PROLIFIC_ID") || undefined;
+        // Store image mapping values - each integer represents the img name
+        let mapping = url.searchParams.get("map") || undefined
+        let Qs;
+        if (mapping != undefined) {
+            mapping = mapping.split("_").slice(0, -1)
+            document.getElementById("stoneA").src= assets[mapping[0]]
+            document.getElementById("stoneB").src= assets[mapping[1]]
+            document.getElementById("stoneC").src= assets[mapping[2]]
+            document.getElementById("stoneD").src= assets[mapping[3]]
+            Qs = `What did this magic stone (${mapping[0]}) do? Try and write the rules:; What did this magic stone (${mapping[1]}) do? Try and write the rules:; What did this magic stone (${mapping[2]}) do? Try and write the rules:; What did this magic stone (${mapping[3]}) do? Try and write the rules:; Did you find any of the magic stones more difficult to use than others?; Did you find the game enjoyable to play? Would you like to suggest any improvements?; Is there anything else you would like to share with us? E.g. did you take notes during the study?`
+        } else {
+            document.getElementById("participating").innerHTML = "Responses submitted. <br><br> Your Prolific completion code is: <b>C1ENAX1O</b> <br><br>You may now close the window."
+        }
+        
         if (ki == "false"){
             document.getElementById("experimentComplete").classList.remove("hidden")
         } else {
@@ -74,15 +119,19 @@
             responses.inputB = formData.get("inputB")
             responses.inputC = formData.get("inputC")
             responses.inputD = formData.get("inputD")
+            responses.inputE = formData.get("inputE")
+            responses.inputF = formData.get("inputF")
+            responses.inputG = formData.get("inputG")
             let submitBtn = document.getElementById("submitBtn")
             submitBtn.setAttribute("disabled", "")
             document.getElementById("debriefForm").reset() 
-            console.log({responses:JSON.stringify(responses), playerId:playerId, questions: Qs})
+            // console.log({responses:JSON.stringify(responses), playerId:playerId, questions: Qs})
             // and hide form
-            let data = {responses: JSON.stringify(responses), playerId:playerId, questions: Qs}
+            let data = {responses: JSON.stringify(responses), playerId:playerId, PROLIFIC_ID:prolific_id, SESSION_ID:session_id, STUDY_ID:study_id, questions: Qs}
+            console.log(data)
             submitData(data).then((res) => console.log(res.status, res.statusText))
             document.getElementById("debriefForm").style.visibility = "hidden"
-            document.getElementById("participating").innerHTML = "Responses submitted. <br> <br>You may now close the window."
+            document.getElementById("participating").innerHTML = "Responses submitted. <br><br> Your Prolific completion code is: <b>C1ENAX1O</b> <br><br>You may now close the window."
         })
 
         

@@ -27,6 +27,9 @@ def pointerView(request):
 
 def debriefView(request):
 
+    print("Loading debrief")
+    print(request)
+
     return render(request, "debrief.html", {})
 
 ## --- API --- ##

@@ -14,6 +14,7 @@ class RoundDataSerializer(serializers.Serializer):
     endtime = serializers.CharField(required=True, max_length=64)
     timeCreated = serializers.DateTimeField(required=False)
     functions = serializers.CharField(required=True)
+    prolificParams = serializers.CharField(max_length=1024, required=False)
 
     def create(self, validated_data):
         # Create and return a new model instance using the validated data
@@ -25,6 +26,7 @@ class DebriefFormSerializer(serializers.Serializer):
     timeCreated = serializers.DateTimeField(required=False)
     responses = serializers.CharField(required=True, max_length=5120)
     questions = serializers.CharField(required=True, max_length=5120)
+    prolificParams = serializers.CharField(max_length=1024, required=False)
 
     def create(self, validated_data):
         return DebriefForm.objects.create(**validated_data)

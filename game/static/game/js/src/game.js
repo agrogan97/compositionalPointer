@@ -25,7 +25,7 @@ var blockLoop = false;
 function setImgs(){
     const roomIds = generateRoomMappings();
     // edit the list below to add expected values from the URL - kinda weird? Should change this
-    params = getUrlParams(["playerId", "ct", "source", "numBlocks", "doSave"]);
+    params = getUrlParams(["playerId", "ct", "source", "numBlocks", "doSave", "PROLIFIC_ID", "STUDY_ID", "SESSION_ID"]);
     if (params.ct == undefined) {params.ct = 'BEstudy'}
     if (params.numBlocks == undefined){params.numBlocks=2}
     mapping = {'A' : roomIds[0], 'B' : roomIds[1], 'C' : roomIds[2], 'D' : roomIds[3]};
@@ -232,13 +232,16 @@ function handleEndgameRedirect(earlyExit){
         2) Provides all URL params EXCEPT playerId, so attaches the generated ID to the params, with early exit status
         3) All URL params provided, so attaches those plus early exit status to redirect link
     */
+   console.log(earlyExit)
     blockLoop = true;
+    let mappingString = ''
+    Object.keys(mapping).forEach(i => {mappingString += mapping[i] + '_'})
 
     if (location.search.length == 0){
-        window.location.replace(`/debrief?&ki=true&playerId=${params.playerId}&ki=${earlyExit}`)
+        window.location.replace(`/debrief?&playerId=${params.playerId}&ki=${earlyExit}&map=${mappingString}`)
     } else if (location.search.length != 0 && !location.search.includes('playerId')){
-        window.location.replace(`/debrief${location.search}&playerId=${params.playerId}&ki=${earlyExit}`)
+        window.location.replace(`/debrief?${location.search}&playerId=${params.playerId}&ki=${earlyExit}&map=${mappingString}`)
     } else {
-        window.location.replace(`/debrief${location.search}&ki=${earlyExit}`)
+        window.location.replace(`/debrief?${location.search}&ki=${earlyExit}&map=${mappingString}`)
     }
 }
