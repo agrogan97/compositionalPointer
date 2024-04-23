@@ -147,11 +147,10 @@ function handleClick(e){
                 config.mapping = JSON.stringify(mapping);
                 // config.params = params;
                 config.source = params.source;
-                config.prolificParams = JSON.stringify({PROLIFIC_ID : params.PROLIFIC_ID, SESSION_ID : params.SESSION_ID, STUDY_ID : params.STUDY_ID});
                 config.functions = config.functions.join()
                 console.log(`Saving`, config)
                 // from here we can call an async save function and save the config obj (also add ID, currType, timestamp etc.)
-                saveData(config).then((res) => console.log(res.status))
+                if (!params.doSave){saveData(config).then((res) => console.log(res.status))}
                 setTimeout(() => {
                     pbar.transitionArrowOpacity = 0;
                     pbar.showTransition = false;
@@ -210,16 +209,16 @@ function draw(){
     // Check if game has started:
     if (begin) {
 
-        if (isFullScreen){
-            if (detectFullscreen() == undefined){
-                isFullScreen = false
-                setTimeout(() => {
-                    handleEndgameRedirect(true)
-                    console.log("exiting")
-                    isFullScreen = false
-                }, 1000)
-            }
-        }
+        // if (isFullScreen){
+        //     if (detectFullscreen() == undefined){
+        //         isFullScreen = false
+        //         setTimeout(() => {
+        //             handleEndgameRedirect(true)
+        //             console.log("exiting")
+        //             isFullScreen = false
+        //         }, 1000)
+        //     }
+        // }
 
         // if fullscreen, render content
         dark ? background(0, 13, 33) : background("white")

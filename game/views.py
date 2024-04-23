@@ -23,6 +23,8 @@ def tutorialView(request):
 
 def pointerView(request):
 
+    print("Loading game")
+
     return render(request, "pointer.html", {})
 
 def debriefView(request):
@@ -36,11 +38,13 @@ def debriefView(request):
 
 @csrf_exempt
 def save(request):
+    print("Saving?")
     if request.method == "POST":
         data = JSONParser().parse(request)
         serializer = RoundDataSerializer(data=data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
+            print(serializer.data)
             return HttpResponse(status=200)
         else:
             print("Got bad request", serializer)

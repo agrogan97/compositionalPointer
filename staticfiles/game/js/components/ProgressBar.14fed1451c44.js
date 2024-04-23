@@ -102,7 +102,7 @@ class ProgressBar{
         textSize(32)
         textFont(assets["fonts"]["kalam-regular"]);
         // text(this.text, this.width + Math.floor((this.levels.length-4)/2)*this.width, this.height*4)
-        text(this.text, window.screen.width/2 - (this.height*2), this.height*4)
+        text(this.text, width/2 - (textWidth(this.text))/2, this.height)
         pop();
 
         if (this.showTransition) {
@@ -141,6 +141,10 @@ class Block{
             "part" : 0.4
         }
         this.hasChar = (this.config.start == this.value)
+
+        // Scale char img to fit within boxes
+        this.imgScaleFactor = (this.width*0.9)/assets.imgs.char.width;
+        this.scaledTextSize = Math.floor((width/1920)*32);
     }
 
     setColour(col){
@@ -172,8 +176,9 @@ class Block{
 
         // Draw character img
         push();
-        translate(pos.x-this.width/8, pos.y+this.height/4)
-        scale(0.275)
+        translate(pos.x+this.width/8, pos.y+this.height/4)
+        // translate(pos.x, pos.y)
+        scale(this.imgScaleFactor)
         tint(this.hidden ? `rgba(255, 255, 255, ${this.alpha.transparent})` : `rgba(255, 255, 255, ${this.alpha.full})`)
         image(this.img, 0, 0)
         pop();
@@ -186,7 +191,7 @@ class Block{
         stroke('black')
         fill('black')
         textFont(assets["fonts"]["kalam-regular"]);
-        textSize(32)
+        textSize(this.scaledTextSize)
         text(`${this.value}`, 0, 0)
 
         pop();

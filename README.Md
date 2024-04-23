@@ -8,6 +8,10 @@ Dockerise with: `docker build --no-cache -t compositionalpointer:latest .`.
 
 Run locally with `docker run -p 8000:8000 compositionalpointer:latest`.
 
+Tag for AWS: `docker tag compositionalpointer:latest <ECR URI>:compositionalpointer`
+
+Push to ECR: `docker push <ECR UCI>:compositionalpointer`
+
 From psql: `\copy (SELECT * FROM game_rounddata) to 'C:<...>\data.csv' with csv`
 and: `\copy (SELECT * FROM game_debriefform) to 'C:<...>\data.csv' with csv`
 
