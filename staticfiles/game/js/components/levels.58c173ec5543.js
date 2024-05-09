@@ -29,7 +29,7 @@ function getRound(numConcepts, compDepth){
         A : function(score){return score + 1},
         B: function(score){return score * (-1)},
         C: function(score){return score * 2},
-        D: function(score){return 0}
+        D: function(score){return start}
     }
 
     // Get set of concepts to sample from
@@ -68,7 +68,7 @@ function defineCurriculum(curriculumType, numBlocks=2){
         const newBlock = () => {
             // --- Block params --- //
             const trialsPerBlock = 64;
-            const primitives = ["A", "B", "C", "D"];
+            const primitives = ["D", "D", "D", "D"];
             const pairs = _.shuffle([
                 ["A", "A"], ["A", "B"], ["A", "C"], ["A", "D"], 
                 ["B", "A"], ["B", "B"], ["B", "C"], ["B", "D"], 
@@ -114,7 +114,7 @@ function computeScore(sequence){
         A : function(score){return score + 1},
         B: function(score){return score * (-1)},
         C: function(score){return score * 2},
-        D: function(score){return 0}
+        D: function(score){return start}
     }
     
     // Check if target score is allowed (i.e. in bounds)
