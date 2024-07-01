@@ -197,3 +197,45 @@ class Block{
         pop();
     }
 }
+
+class Timer{
+    constructor(x, y, w, h, timeLength){
+        this.x = x;
+        this.y = y;
+        this.w = w;
+        this.h = h;
+        this.timeLength = timeLength;
+        this.initTime = Date.now();
+        this.stop = false;
+        this.prop = 0;
+    }
+
+    reset(){
+        this.initTime = Date.now();
+        this.stop = false;
+    }
+
+    onTimeUp(){
+    }
+
+    pause(){
+        this.stop = true;
+    }
+
+    draw(){
+        if (!this.stop){
+            let timeDiff = (Date.now() - this.initTime)/1000; // Difference between start and now in seconds
+            this.prop = timeDiff / this.timeLength; // The ratio of time passed (range 0-1)
+            if (this.prop >= 1){ // i.e. timePassed / totalTime = 1, i.e. timePassed == totalTime
+                this.onTimeUp();
+                this.prop = 0;
+            }
+        }
+        push();
+        strokeWeight(10)
+        stroke("rgb(235, 155, 52)")
+        translate(this.x, this.y);
+        arc(0, 0, this.w, this.h, 0, (1-this.prop)*2*PI);
+        pop();
+    }
+}

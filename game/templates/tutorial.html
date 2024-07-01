@@ -26,7 +26,7 @@
         }, 500)
 
         const clickFn = () => {
-            if (imgNum == 13){
+            if (imgNum == 14){
                     setTimeout(() => {
                         window.location.replace(`/pointer${location.search}`)
                     }, 250)
@@ -65,6 +65,9 @@
                             break;
                         case 12:
                             mainImg.src = "{% static 'game/imgs/tutorial/tutorial12.png' %}"
+                            break;
+                        case 13:
+                            mainImg.src = "{% static 'game/imgs/tutorial/tutorial13.png' %}"
                             break;
                     }
             }

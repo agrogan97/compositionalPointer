@@ -27,7 +27,7 @@ function setImgs(){
     // edit the list below to add expected values from the URL - kinda weird? Should change this
     params = getUrlParams(["playerId", "ct", "source", "numBlocks", "doSave", "PROLIFIC_ID", "STUDY_ID", "SESSION_ID"]);
     if (params.ct == undefined) {params.ct = 'BEstudy'}
-    if (params.numBlocks == undefined){params.numBlocks=2}
+    if (params.numBlocks == undefined){params.numBlocks=4}
     mapping = {'A' : roomIds[0], 'B' : roomIds[1], 'C' : roomIds[2], 'D' : roomIds[3]};
     
     curriculum = defineCurriculum(params.ct, params.numBlocks);
@@ -73,6 +73,7 @@ const parseNewRound = (config, set=true) => {
 
 const nextRound = () => {
     roundIndex += 1;
+    countdown.pause();
     if (roundIndex == curriculum.length) {
         console.log("Game complete")
         hasClicked = true;
@@ -93,6 +94,7 @@ const nextRound = () => {
     pbar.blocks.forEach(block => block.updateConfig(config))
     hasClicked = false;
     document.getElementById("roundIndex").innerHTML = `Round ${roundIndex+1}/${curriculum.length}`
+    countdown.reset();
 }
 
 // -- P5 Functions --
@@ -136,22 +138,24 @@ function handleClick(e){
                     {}
                 }
                 // Move character to clicked block
-                config.score = block.value;
+                // config.score = block.value;
                 // Show transition arrow
                 pbar.showTransitionArrow(config.start, block.value);
                 // Add data to savefile
-                config.endtime = Date.now().toString()
-                config.playerId = params.playerId;
-                config.roundIndex = roundIndex;
-                config.curriculumType = params.ct;
-                config.mapping = JSON.stringify(mapping);
-                // config.params = params;
-                config.source = params.source;
-                config.prolificParams = JSON.stringify({PROLIFIC_ID : params.PROLIFIC_ID, SESSION_ID : params.SESSION_ID, STUDY_ID : params.STUDY_ID});
-                config.functions = config.functions.join()
-                console.log(`Saving`, config)
+                // config.endtime = Date.now().toString()
+                // config.playerId = params.playerId;
+                // config.roundIndex = roundIndex;
+                // config.curriculumType = params.ct;
+                // config.mapping = JSON.stringify(mapping);
+                // // config.params = params;
+                // config.source = params.source;
+                // config.prolificParams = JSON.stringify({PROLIFIC_ID : params.PROLIFIC_ID, SESSION_ID : params.SESSION_ID, STUDY_ID : params.STUDY_ID});
+                // config.functions = config.functions.join()
+                // console.log(`Saving`, config)
+                preSave(block);
                 // from here we can call an async save function and save the config obj (also add ID, currType, timestamp etc.)
                 saveData(config).then((res) => console.log(res.status))
+                countdown.pause()
                 setTimeout(() => {
                     pbar.transitionArrowOpacity = 0;
                     pbar.showTransition = false;
@@ -161,6 +165,25 @@ function handleClick(e){
             }
         }
     })
+}
+
+function preSave(block){
+    if (block == undefined || block.value == undefined){
+        config.score = -1000;
+    } else {
+        config.score = block.value;
+    }
+    
+    // Add data to savefile
+    config.endtime = Date.now().toString()
+    config.playerId = params.playerId;
+    config.roundIndex = roundIndex;
+    config.curriculumType = params.ct;
+    config.mapping = JSON.stringify(mapping);
+    // config.params = params;
+    config.source = params.source;
+    config.prolificParams = JSON.stringify({PROLIFIC_ID : params.PROLIFIC_ID, SESSION_ID : params.SESSION_ID, STUDY_ID : params.STUDY_ID});
+    config.functions = config.functions.join()
 }
 
 async function saveData(config){
@@ -184,7 +207,13 @@ function setup(){
     canvas.parent("gameCanvas");
     rectMode(CORNER);
     imageMode(CORNER);
-    pbar = new ProgressBar(width/2-50, 250, config)
+    pbar = new ProgressBar(width/2-50, 250, config);
+    countdown = new Timer(width*0.5, height*0.5, 80, 80, 10);
+    countdown.onTimeUp = () => {
+        preSave();
+        saveData(config).then((res) => console.log(res.status));
+        nextRound();
+    }
     document.getElementById("roundIndex").innerHTML = `Round ${roundIndex+1}/${curriculum.length}`;
     // add an initial fullscreen load click listener
     document.addEventListener("click", () => {
@@ -197,6 +226,7 @@ function setup(){
                 // hide fullscreen message and show img container
                 document.getElementById("imgContainer").classList.remove("hidden");
                 canvas.mouseClicked((e) => handleClick(e))
+                countdown.reset();
             }, 250)
         }
     })
@@ -224,6 +254,7 @@ function draw(){
         // if fullscreen, render content
         dark ? background(0, 13, 33) : background("white")
         pbar.draw();
+        countdown.draw();
     }
 }
 
